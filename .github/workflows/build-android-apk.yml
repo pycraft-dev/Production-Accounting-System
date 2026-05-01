@@ -76,13 +76,19 @@ jobs:
           set -euo pipefail
           mkdir -p "${HOME}/.android"
           touch "${HOME}/.android/repositories.cfg"
+          # Не создавать android-sdk до buildozer: пустой каталог = «SDK уже есть» → скачивание tools пропускается
+          # и падает с «sdkmanager … does not exist». Старый битый кэш с только licenses/ — удалить.
           SDK_ROOT="${HOME}/.buildozer/android/platform/android-sdk"
-          mkdir -p "${SDK_ROOT}/licenses"
-          # sdkmanager без TTY ждёт Accept? (y/N) и по умолчанию отказывает — без platform-tools/build-tools падает aidl.
-          # Хэши — официальные «принятые» записи licenses/ для неинтерактивной установки.
-          printf '%s\n' '24333f8a63b6825ea9c5514f83c2829b004d1fee' > "${SDK_ROOT}/licenses/android-sdk-license"
-          printf '%s\n' '84831b9409646a918e30573bab4c9c91346d8abd' > "${SDK_ROOT}/licenses/android-sdk-preview-license"
-          buildozer android debug
+          SM="${SDK_ROOT}/tools/bin/sdkmanager"
+          if [[ -d "$SDK_ROOT" && ! -f "$SM" ]]; then
+            rm -rf "$SDK_ROOT"
+          fi
+          # sdkmanager без TTY спрашивает Accept? (y/N); «y» с stdin через yes (код выхода — у buildozer, не у yes/SIGPIPE).
+          set +o pipefail
+          yes | buildozer android debug
+          ec=${PIPESTATUS[1]}
+          set -o pipefail
+          exit "$ec"
 
       - name: List output
         run: ls -la bin/
