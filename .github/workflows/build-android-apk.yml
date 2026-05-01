@@ -17,8 +17,10 @@ concurrency:
   group: build-apk-${{ github.ref }}
   cancel-in-progress: true
 
+# Только contents:read ломает actions/cache («скачать») и upload-artifact — нужен доступ к Actions API.
 permissions:
   contents: read
+  actions: write
 
 jobs:
   apk:
