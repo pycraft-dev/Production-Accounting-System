@@ -1,7 +1,12 @@
 # Сборка debug APK (Kivy / Buildozer) без локального WSL.
 # Артефакт: Actions → последний запуск → Artifacts → pas-mobile-debug-apk
 #
-# Первый прогон часто 45–90 минут (скачивание Android SDK/NDK и сборка рецептов).
+# Первый прогон часто 45–90 минут (SDK/NDK и рецепты p4a).
+#
+# Кэш и загрузка APK требуют права записи у GITHUB_TOKEN:
+#   Settings репозитория → Actions → General → Workflow permissions →
+#   «Read and write permissions» (не «Read repository contents only»).
+# Иначе шаг cache («скачать» в рус. UI) и Upload APK падают с exit code 1.
 
 name: Build Android APK
 
@@ -16,11 +21,6 @@ on:
 concurrency:
   group: build-apk-${{ github.ref }}
   cancel-in-progress: true
-
-# Только contents:read ломает actions/cache («скачать») и upload-artifact — нужен доступ к Actions API.
-permissions:
-  contents: read
-  actions: write
 
 jobs:
   apk:
@@ -58,6 +58,7 @@ jobs:
         run: sed -i 's/warn_on_root = 1/warn_on_root = 0/' buildozer.spec
 
       - name: Cache Buildozer / Android tooling
+        continue-on-error: true
         uses: actions/cache@v4
         with:
           path: |

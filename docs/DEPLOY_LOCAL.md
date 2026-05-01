@@ -134,6 +134,9 @@ ipconfig
 
 Если локальный WSL без сети, можно собирать в облаке: в репозитории есть workflow **`.github/workflows/build-android-apk.yml`**.
 
+0. **Один раз в репозитории на GitHub:** **Settings** → **Actions** → **General** → блок **Workflow permissions** → выберите **Read and write permissions** → **Save**.  
+   Если оставить режим «только чтение», шаг кэша (в интерфейсе может отображаться как **«скачать»**) и выгрузка **APK** часто падают с **exit code 1**: у `GITHUB_TOKEN` нет прав на кэш и артефакты.
+
 1. Залейте проект на GitHub (ветка **`main`** или **`master`**).
 2. В репозитории: **Actions** → **Build Android APK** → **Run workflow** (или пуш в `main`/`master` с изменениями в **`mobile/`**).
 3. После завершения: тот же workflow-run → секция **Artifacts** → скачайте **`pas-mobile-debug-apk`** (внутри лежит `*.apk`).
