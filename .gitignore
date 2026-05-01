@@ -1,0 +1,55 @@
+# Secrets — никогда не коммитить
+.env
+backend/.env
+*.pem
+
+# Локальные данные
+backend/dev.db
+backend/*.db
+backend/storage/uploads/*
+!backend/storage/uploads/.gitkeep
+
+# Планы/кэш Cursor (не публиковать)
+.cursor/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+backend/.venv/
+
+# Tests / tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Buildozer / Android (локальная сборка)
+mobile/.buildozer/
+mobile/.buildozer_venv/
+mobile/bin/
+mobile/defect_attach_cache/
+*.apk
+*.aab
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs / temp
+*.log
+tmp/
+temp/
+*.log
+tmp/
+temp/

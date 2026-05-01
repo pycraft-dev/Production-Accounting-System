@@ -1,0 +1,6 @@
+# Windows: Kivy ставится из готовых колёс только на Python 3.8–3.12 (см. start_mobile.bat).
+# Ошибка «Failed to build kivy»: чаще всего не та версия Python или нет колеса — используйте 3.11/3.12 и pip install -U pip wheel setuptools.
+kivy==2.3.0
+kivymd==1.2.0
+requests>=2.31.0
+plyer>=2.1.0

@@ -1,0 +1,5 @@
+{
+  "min_supported_client": "1.0.0",
+  "desktop": { "version": "1.0.0", "filename": null },
+  "mobile": { "version": "1.0.0", "filename": null }
+}

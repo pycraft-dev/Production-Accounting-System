@@ -1,0 +1,79 @@
+# Сборка debug APK (Kivy / Buildozer) без локального WSL.
+# Артефакт: Actions → последний запуск → Artifacts → pas-mobile-debug-apk
+#
+# Первый прогон часто 45–90 минут (скачивание Android SDK/NDK и сборка рецептов).
+
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/build-android-apk.yml'
+
+concurrency:
+  group: build-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: mobile
+
+    env:
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Disk space (debug)
+        run: df -h
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            git zip unzip openjdk-17-jdk python3-pip python3-venv \
+            autoconf automake libtool pkg-config zlib1g-dev \
+            libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev \
+            build-essential
+
+      - name: Install buildozer
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install "buildozer>=1.5"
+
+      - name: CI-friendly buildozer.spec
+        run: sed -i 's/warn_on_root = 1/warn_on_root = 0/' buildozer.spec
+
+      - name: Cache Buildozer / Android tooling
+        uses: actions/cache@v4
+        with:
+          path: |
+            /home/runner/.buildozer
+            mobile/.buildozer
+          key: buildozer-${{ runner.os }}-22.04-${{ hashFiles('mobile/buildozer.spec') }}
+          restore-keys: |
+            buildozer-${{ runner.os }}-22.04-
+
+      - name: Build debug APK
+        run: buildozer android debug
+
+      - name: List output
+        run: ls -la bin/
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: pas-mobile-debug-apk
+          path: mobile/bin/*.apk
+          if-no-files-found: error
