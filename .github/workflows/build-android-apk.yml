@@ -44,7 +44,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
-            git zip unzip openjdk-17-jdk python3-pip python3-venv \
+            git zip unzip openjdk-17-jdk python3-pip python3-venv python3-dev \
             autoconf automake libtool pkg-config zlib1g-dev \
             libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev \
             build-essential
@@ -52,7 +52,10 @@ jobs:
       - name: Install buildozer
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install "buildozer>=1.5"
+          python3 -m pip install --user "buildozer>=1.5" "cython>=3.0"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.local/bin:$PATH"
+          cython --version
 
       - name: CI-friendly buildozer.spec
         run: sed -i 's/warn_on_root = 1/warn_on_root = 0/' buildozer.spec
